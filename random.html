@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机？</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .big-box {
+            margin: 0 auto;
+            height: 100vh;
+            max-width: 600px;
+            font-size: 14px;
+        }
+
+        .list-content {
+            height: calc(100% - 150px);
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .list-top {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 20px 0;
+        }
+
+        .add-input {
+            outline: none;
+            border: none;
+            padding: 0 12px;
+            border: 1px solid #dcdee2;
+            border-radius: 6px;
+            height: 100%;
+            flex: 1;
+        }
+
+        .add-button {
+            height: 100%;
+            margin-left: 16px;
+            color: #efefef;
+            background-color: #2d8cf0;
+            text-align: center;
+            line-height: 30px;
+            padding: 0 10px;
+            border-radius: 6px;
+        }
+
+        .list-box {
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px dotted #808695;
+            display: grid;
+            grid-row-gap: 16px;
+            grid-column-gap: 16px;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .list-item {
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #dcdee2;
+            height: 30px;
+            color: #515a6e;
+            line-height: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .active-list-item {
+            color: #efefef;
+            border-color: #2db7f5;
+            background-color: #5cadff;
+        }
+
+        .item-text {
+            display: inline-block;
+            height: 100%;
+            text-align: center;
+        }
+
+        .del-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            border-radius: 50%;
+            background-color: #ed4014;
+            font-weight: 600;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            color: #efefef;
+            font-size: 12px;
+        }
+
+        .result-content {
+            height: 100px;
+            box-shadow: 0 0 2px 2px #f0f0f0;
+            padding: 20px 12px;
+        }
+
+        .result-box {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #2d8cf0;
+            font-size: 16px;
+
+        }
+
+        .start-button {
+            height: 36px;
+            color: #efefef;
+            background-color: #2d8cf0;
+            text-align: center;
+            line-height: 36px;
+            padding: 0 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="big-box">
+        <div class="list-content">
+            <div class="list-top">
+                <input type="text" class="add-input">
+                <div class="add-button">确定新增</div>
+            </div>
+            <div class="list-box">
+                <!-- <div class="list-item"><span class="item-text">红烧牛肉面</span><span class="del-icon">X</span></div>
+                <div class="list-item"><span class="item-text">丝瓜瘦肉汤饭</span><span class="del-icon">X</span></div>
+                <div class="list-item"><span class="item-text">炒饭</span><span class="del-icon">X</span></div>
+                <div class="list-item"><span class="item-text">炒面</span><span class="del-icon">X</span></div>
+                <div class="list-item"><span class="item-text">饺子</span><span class="del-icon">X</span></div> -->
+            </div>
+        </div>
+        <div class="result-content">
+            <div class="result-box">就决定是你了皮卡丘： <span class="result-value">--</span> ！</div>
+            <div class="start-button">点击开始</div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    let addInput = document.querySelector(".add-input"); // 输入框
+    let addButton = document.querySelector(".add-button"); // 新增按钮
+    let startButton = document.querySelector(".start-button"); // 开始按钮
+    let listBox = document.querySelector(".list-box"); // 列表dom
+    let resultDom = document.querySelector(".result-value"); //结果
+
+    let frag = document.createDocumentFragment();
+    let list = [
+        "红烧牛肉面",
+        "丝瓜瘦肉汤饭",
+        "炒饭",
+        "炒面",
+        "饺子"
+    ]; // 列表
+    let key = 'randamMenu'; // 保存的key
+
+    let timer = null; // 定时器存放
+
+
+    // 获取列表
+    function getData(key) {
+        let data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : []
+    }
+
+    // 保存列表
+    function saveData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    // 保存列表
+    function saveData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    // 增加对象
+    function addItem() {
+        let value = addInput.value;
+
+        value = value ? value.trim() : "";
+
+        randomStop();
+        resultDom.innerText = '--';
+
+        if (!value) {
+            alert("请输入内容!")
+            return
+        }
+        if (list.indexOf(value) > -1) {
+            alert("该对象已存在，请更换!")
+            return
+        }
+
+        list.push(value);
+
+        addInput.value = ""
+        saveData(key, list);
+        initList();
+    }
+
+    // 删除对象
+    function delItem(event) {
+        if (event.target.className == "del-icon") {
+            let text = event.target.parentNode.children[0];
+            let tvalue = text.innerText;
+            let tindex = list.findIndex(v => v === tvalue);
+            tindex > -1 ? list.splice(tindex, 1) : ''
+            saveData(key, list)
+            initList();
+            randomStop();
+            resultDom.innerText = '--';
+        }
+    }
+
+    // 初始话
+    function initList() {
+        list = getData(key) && getData(key).length > 0 ? getData(key) : list;
+        listBox.innerHTML = "";
+        for (let i = 0; i < list.length; i++) {
+            let item = document.createElement("div");
+            item.className = "list-item";
+            item.innerHTML = `<span class="item-text">${list[i]}</span><span class="del-icon">X</span>`;
+            item.addEventListener("click", delItem)
+            frag.appendChild(item);
+        }
+        listBox.appendChild(frag);
+    }
+
+    // 设置激活
+    function setActive(index) {
+        if (!index && index != 0) {
+            return
+        }
+        let allItem = document.querySelectorAll(".list-item");
+        for (let j = 0; j < allItem.length; j++) {
+            j == index ? allItem[j].className = "list-item active-list-item" : allItem[j].className = "list-item"
+        }
+        resultDom.innerText = list[index]
+    }
+
+
+    // 返回随机数
+    function getRandom(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // 开始
+    function randomStart() {
+        clearInterval(timer);
+        startButton.innerText = "点击停止"
+        timer = setInterval(() => {
+            let num = getRandom(0, list.length - 1);
+            setActive(num)
+
+        }, 55)
+    }
+
+    function randomStop() {
+        startButton.innerText = "点击开始"
+        clearInterval(timer);
+    }
+
+    initList();
+
+    addButton.addEventListener("click", addItem)
+    startButton.addEventListener("click", function () {
+        let text = startButton.innerText
+
+        if (text == "点击开始") {
+            randomStart()
+        } else {
+            randomStop()
+        }
+    })
+</script>
+
+</html>
